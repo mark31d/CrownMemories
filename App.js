@@ -25,60 +25,42 @@ const RootStack = createNativeStackNavigator();
 
 export default function App() {
   const [bootDone, setBootDone] = useState(false);
-  const [seenOnboard, setSeenOnboard] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const flag = await AsyncStorage.getItem('@cm_seen_onboard');
-      setSeenOnboard(flag === '1');
+      // Ставим флаг, чтобы в будущем не показывать Onboarding повторно
+      await AsyncStorage.setItem('@cm_seen_onboard', '1');
+      // Показываем Loader 1.8 секунды
       setTimeout(() => setBootDone(true), 1800);
     })();
   }, []);
 
-  if (!bootDone) return <Loader />;
+  if (!bootDone) {
+    return <Loader />;
+  }
 
   return (
     <GestureHandlerRootView style={styles.flex}>
       <StatusBar barStyle="light-content" />
       <NavigationContainer>
         <RootStack.Navigator screenOptions={{ headerShown: false }}>
-          {!seenOnboard && (
-            <RootStack.Screen
-              name="Onboarding"
-              component={Onboarding}
-            />
-          )}
+          {/* Всегда первый экран после Loader – это Onboarding */}
+          <RootStack.Screen name="Onboarding" component={Onboarding} />
 
+          {/* Как только Onboarding завершится, мы replace("Home") */}
           <RootStack.Screen name="Home">
             {() => (
               <MemoriesProvider>
                 <CapsulesProvider>
                   <TaskProvider>
                     <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                      <RootStack.Screen
-                        name="HomeMain"
-                        component={HomeScreen}
-                      />
-                      <RootStack.Screen
-                        name="Archive"
-                        component={ArchiveScreen}
-                      />
-                      <RootStack.Screen
-                        name="Task"
-                        component={TaskScreen}
-                      />
-                      <RootStack.Screen
-                        name="Capsule"
-                        component={CapsuleScreen}
-                      />
-                      <RootStack.Screen
-                        name="NewMemory"
-                        component={NewMemoryScreen}
-                      />
-                      <RootStack.Screen
-                        name="MemoryCreated"
-                        component={MemoryCreatedScreen}
-                      />
+                      {/* Первый экран вложенного стека */}
+                      <RootStack.Screen name="HomeMain" component={HomeScreen} />
+                      <RootStack.Screen name="Archive" component={ArchiveScreen} />
+                      <RootStack.Screen name="Task" component={TaskScreen} />
+                      <RootStack.Screen name="Capsule" component={CapsuleScreen} />
+                      <RootStack.Screen name="NewMemory" component={NewMemoryScreen} />
+                      <RootStack.Screen name="MemoryCreated" component={MemoryCreatedScreen} />
                     </RootStack.Navigator>
                   </TaskProvider>
                 </CapsulesProvider>

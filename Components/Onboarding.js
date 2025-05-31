@@ -59,7 +59,7 @@ export default function Onboarding({ navigation }) {
 
   const finish = async () => {
     await AsyncStorage.setItem('@cm_seen_onboard', '1');
-    navigation.replace('Main');
+    navigation.replace('Home');
   };
 
   const Btn = ({ title, onPress }) => (
